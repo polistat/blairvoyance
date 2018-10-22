@@ -246,6 +246,6 @@ for index, row in raw.iterrows():
     y_pred.append(interpout + 0.5)
 
 out_df = pd.DataFrame({'district_name': districts, 'bv': y_pred})
-out_df.to_csv('bv_out.csv', index=False)
+out_df.to_csv('./data/bv_out.csv', index=False)
 
 print(np.sum(np.array(y_pred) > .50) / len(y_pred))

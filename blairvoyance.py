@@ -149,6 +149,12 @@ df['MRAM'] = (50 + df['Tmp']) / 100 - 0.5
 df = df[df['Tmp'] != 0]
 df = df[df['Name'].str.get(0) + df['Name'].str.get(1) != 'PA']
 
+# Normalize columns
+for cn in df.columns:
+    if np.issubdtype(df[cn].dtype, np.number) and cn != 'MRAM':
+        df[cn] /= max(df[cn])
+        df[cn] *= 1000
+
 print('Data loaded')
 
 def gen_interpolator(df_train, _ins, _outs):

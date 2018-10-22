@@ -45,6 +45,7 @@ from io import open
 
 ROOT2 = math.sqrt(2)
 
+
 def RandomSeed(x):
     """Initialize the random and np.random generators.
 
@@ -302,6 +303,7 @@ class _DictWrapper(object):
 
         It items are unsortable, the result is unsorted.
         """
+
         def isnan(x):
             try:
                 return math.isnan(x)
@@ -403,6 +405,7 @@ class Hist(_DictWrapper):
 
     Values can be any hashable type; frequencies are integer counters.
     """
+
     def Freq(self, x):
         """Gets the frequency associated with the value x.
 
@@ -589,7 +592,7 @@ class Pmf(_DictWrapper):
         if mu is None:
             mu = self.Mean()
 
-        return sum(p * (x-mu)**2 for x, p in self.Items())
+        return sum(p * (x - mu) ** 2 for x, p in self.Items())
 
     def Expect(self, func):
         """Computes the expectation of func(x).
@@ -753,7 +756,7 @@ class Pmf(_DictWrapper):
         try:
             return self.DivPmf(other)
         except AttributeError:
-            return self.MulConstant(1/other)
+            return self.MulConstant(1 / other)
 
     __truediv__ = __div__
 
@@ -983,6 +986,7 @@ class Cdf:
         ps: sequence of probabilities
         label: string used as a graph label.
     """
+
     def __init__(self, obj=None, ps=None, label=None):
         """Initializes.
 
@@ -1094,7 +1098,7 @@ class Cdf:
         a = self.ps
         b = np.roll(a, 1)
         b[0] = 0
-        return zip(self.xs, a-b)
+        return zip(self.xs, a - b)
 
     def Shift(self, term):
         """Adds a term to the xs.
@@ -1128,7 +1132,7 @@ class Cdf:
         if x < self.xs[0]:
             return 0
         index = bisect.bisect(self.xs, x)
-        p = self.ps[index-1]
+        p = self.ps[index - 1]
         return p
 
     def Probs(self, xs):
@@ -1140,7 +1144,7 @@ class Cdf:
         """
         xs = np.asarray(xs)
         index = np.searchsorted(self.xs, xs, side='right')
-        ps = self.ps[index-1]
+        ps = self.ps[index - 1]
         ps[xs < self.xs[0]] = 0
         return ps
 
@@ -1290,6 +1294,7 @@ class Cdf:
         Returns:
             tuple of (xs, ps)
         """
+
         def interleave(a, b):
             c = np.empty(a.shape[0] + b.shape[0])
             c[::2] = a
@@ -1627,7 +1632,7 @@ class NormalPdf(Pdf):
 
         Returns: numpy array
         """
-        low, high = self.mu-3*self.sigma, self.mu+3*self.sigma
+        low, high = self.mu - 3 * self.sigma, self.mu + 3 * self.sigma
         return np.linspace(low, high, 101)
 
     def Density(self, xs):
@@ -1660,7 +1665,7 @@ class ExponentialPdf(Pdf):
 
         Returns: numpy array
         """
-        low, high = 0, 5.0/self.lam
+        low, high = 0, 5.0 / self.lam
         return np.linspace(low, high, 101)
 
     def Density(self, xs):
@@ -1670,7 +1675,7 @@ class ExponentialPdf(Pdf):
 
         returns: float or NumPy array of probability density
         """
-        return stats.expon.pdf(xs, scale=1.0/self.lam)
+        return stats.expon.pdf(xs, scale=1.0 / self.lam)
 
 
 class EstimatedPdf(Pdf):
@@ -1864,7 +1869,7 @@ def MakeBinomialPmf(n, p):
     returns: Pmf of number of successes
     """
     pmf = Pmf()
-    for k in range(n+1):
+    for k in range(n + 1):
         pmf[k] = stats.binom.pmf(k, n, p)
     return pmf
 
@@ -1877,7 +1882,7 @@ def EvalGammaPdf(x, a):
 
     returns: float probability
     """
-    return x**(a-1) * np.exp(-x) / gamma(a)
+    return x ** (a - 1) * np.exp(-x) / gamma(a)
 
 
 def MakeGammaPmf(xs, a):
@@ -2002,13 +2007,13 @@ def EvalWeibullPdf(x, lam, k):
     returns: float probability density
     """
     arg = (x / lam)
-    return k / lam * arg**(k-1) * np.exp(-arg**k)
+    return k / lam * arg ** (k - 1) * np.exp(-arg ** k)
 
 
 def EvalWeibullCdf(x, lam, k):
     """Evaluates CDF of the Weibull distribution."""
     arg = (x / lam)
-    return 1 - np.exp(-arg**k)
+    return 1 - np.exp(-arg ** k)
 
 
 def MakeWeibullPmf(lam, k, high, n=200):
@@ -2052,6 +2057,7 @@ def MakeParetoPmf(xm, alpha, high, num=101):
     ps = stats.pareto.pdf(xs, alpha, scale=xm)
     pmf = Pmf(dict(zip(xs, ps)))
     return pmf
+
 
 def StandardNormalCdf(x):
     """Evaluates the CDF of the standard Normal distribution.
@@ -2126,7 +2132,7 @@ def RenderExpoCdf(lam, low, high, n=101):
     """
     xs = np.linspace(low, high, n)
     ps = 1 - np.exp(-lam * xs)
-    #ps = stats.expon.cdf(xs, scale=1.0/lam)
+    # ps = stats.expon.cdf(xs, scale=1.0/lam)
     return xs, ps
 
 
@@ -2161,7 +2167,7 @@ def RenderParetoCdf(xmin, alpha, low, high, n=50):
         low = xmin
     xs = np.linspace(low, high, n)
     ps = 1 - (xs / xmin) ** -alpha
-    #ps = stats.pareto.cdf(xs, scale=xmin, b=alpha)
+    # ps = stats.pareto.cdf(xs, scale=xmin, b=alpha)
     return xs, ps
 
 
@@ -2170,6 +2176,7 @@ class Beta:
 
     See http://en.wikipedia.org/wiki/Beta_distribution
     """
+
     def __init__(self, alpha=1, beta=1, label=None):
         """Initializes a Beta distribution."""
         self.alpha = alpha
@@ -2571,7 +2578,7 @@ def Cov(xs, ys, meanx=None, meany=None):
     if meany is None:
         meany = np.mean(ys)
 
-    cov = np.dot(xs-meanx, ys-meany) / len(xs)
+    cov = np.dot(xs - meanx, ys - meany) / len(xs)
     return cov
 
 
@@ -2647,7 +2654,7 @@ def MapToRanks(t):
     resorted = sorted(ranked, key=lambda trip: trip[1][0])
 
     # extract the ranks
-    ranks = [trip[0]+1 for trip in resorted]
+    ranks = [trip[0] + 1 for trip in resorted]
     return ranks
 
 
@@ -2723,7 +2730,7 @@ def CorrelatedGenerator(rho):
     x = random.gauss(0, 1)
     yield x
 
-    sigma = math.sqrt(1 - rho**2)
+    sigma = math.sqrt(1 - rho ** 2)
     while True:
         x = random.gauss(x * rho, sigma)
         yield x
@@ -2745,14 +2752,14 @@ def CorrelatedNormalGenerator(mu, sigma, rho):
 def RawMoment(xs, k):
     """Computes the kth raw moment of xs.
     """
-    return sum(x**k for x in xs) / len(xs)
+    return sum(x ** k for x in xs) / len(xs)
 
 
 def CentralMoment(xs, k):
     """Computes the kth central moment of xs.
     """
     mean = RawMoment(xs, 1)
-    return sum((x - mean)**k for x in xs) / len(xs)
+    return sum((x - mean) ** k for x in xs) / len(xs)
 
 
 def StandardizedMoment(xs, k):
@@ -2760,7 +2767,7 @@ def StandardizedMoment(xs, k):
     """
     var = CentralMoment(xs, 2)
     std = math.sqrt(var)
-    return CentralMoment(xs, k) / std**k
+    return CentralMoment(xs, k) / std ** k
 
 
 def Skewness(xs):
@@ -2832,9 +2839,9 @@ class FixedWidthVariables(object):
         returns: DataFrame
         """
         df = pd.read_fwf(filename,
-                             colspecs=self.colspecs,
-                             names=self.names,
-                             **options)
+                         colspecs=self.colspecs,
+                         names=self.names,
+                         **options)
         return df
 
 
@@ -2852,7 +2859,7 @@ def ReadStataDct(dct_file, **options):
     var_info = []
     with open(dct_file, **options) as f:
         for line in f:
-            match = re.search( r'_column\(([^)]*)\)', line)
+            match = re.search(r'_column\(([^)]*)\)', line)
             if not match:
                 continue
             start = int(match.group(1))
@@ -2871,7 +2878,7 @@ def ReadStataDct(dct_file, **options):
 
     # fill in the end column by shifting the start column
     variables['end'] = variables.start.shift(-1)
-    variables.loc[len(variables)-1, 'end'] = 0
+    variables.loc[len(variables) - 1, 'end'] = 0
 
     dct = FixedWidthVariables(variables, index_base=1)
     return dct
@@ -3011,6 +3018,7 @@ class HypothesisTest(object):
     def PlotCdf(self, label=None):
         """Draws a Cdf with vertical lines at the observed test stat.
         """
+
         def VertLine(x):
             """Draws a vertical line at x."""
             plt.plot([x, x], [0, 1], color='0.8')

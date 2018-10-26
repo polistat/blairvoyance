@@ -7,7 +7,6 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from datetime import date
 import thinkbayes2
-import datapull
 
 plt.style.use('ggplot')
 
@@ -71,8 +70,8 @@ class PollAggregator:
 
 print('Libraries loaded')
 
-districts = list(pd.read_csv('./data/district_input.csv').iloc[:, 0])
-poll_df = pd.read_csv('./data/poll_input.csv')
+districts = list(pd.read_csv('district_input.csv').iloc[:, 0])
+poll_df = pd.read_csv('poll_input.csv')
 
 polls = {district: PollAggregator() for district in districts}
 vanilla_weights = {district: [] for district in districts}
@@ -115,7 +114,7 @@ for vw in vanilla_weights:
     else:
         vanilla_weights[vw] = 0
 
-with open('./data/ppoll.csv', 'w') as f:
+with open('ppoll.csv', 'w') as f:
     for poll in polls:
         if len(polls[poll].poll_vals) > 0:
             f.write(poll + ',' + str((polls[poll].e_val() - 0.5) * 100) + '\n')
@@ -125,9 +124,9 @@ with open('./data/ppoll.csv', 'w') as f:
 
 print("Polls written")
 
-pp = pd.read_csv('./data/ppoll.csv', header=None)
+pp = pd.read_csv('ppoll.csv', header=None)
 # bf = pd.read_csv('big_fun.csv')
-df = pd.read_csv('./data/demographics.csv', header=None)
+df = pd.read_csv('demographics.csv', header=None)
 
 ins = ['S' + str(rep).zfill(3) for rep in range(df.shape[1])]
 outs = ['MRAM']
@@ -245,6 +244,6 @@ for index, row in raw.iterrows():
     y_pred.append(interpout + 0.5)
 
 out_df = pd.DataFrame({'district_name': districts, 'bv': y_pred})
-out_df.to_csv('./data/bv_out.csv', index=False)
+out_df.to_csv('bv_out.csv', index=False)
 
 print(np.sum(np.array(y_pred) > .50) / len(y_pred))

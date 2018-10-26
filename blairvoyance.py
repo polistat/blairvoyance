@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy.cluster
 import scipy.interpolate
-# from scipy import stats
+from scipy import stats
 # from sklearn.metrics import mean_squared_error as mse, mean_absolute_error as mae
 import matplotlib.pyplot as plt
 from datetime import date
@@ -151,7 +151,10 @@ df = df[df['Name'].str.get(0) + df['Name'].str.get(1) != 'PA']
 # Normalize columns
 for cn in df.columns:
     if np.issubdtype(df[cn].dtype, np.number) and cn != 'MRAM':
-        df[cn] /= max(df[cn])
+        q1 = df[cn].quantile(0.25)
+        q3 = df[cn].quantile(0.75)
+        iqr = q3-q1
+        df[cn] /= iqr
         df[cn] *= 1000
 
 print('Data loaded')
@@ -172,7 +175,8 @@ def validate_step(rbfi, df_validate, _ins, _outs):
         y_true.append(row[outs[0]])
 
     er = np.array(np.array(y_true) - np.array(y_pred))
-    correct = np.array([(y_pred[i] > 0.5) == (y_true[i] > 0.5) for i in range(len(y_pred))])
+    #er = np.array(y_true)
+    correct = np.array([(y_pred[i] > 0) == (y_true[i] > 0) for i in range(len(y_pred))])
 
     return er, correct
 
@@ -182,21 +186,15 @@ er_all = []
 correct_all = []
 
 print()
-N = 100
-for k in range(N):
-    # Randomly select training 
-    ridx = np.random.rand(len(df)) < 114 / 435  # 50% True 50% False
-    df_train = df[ridx]
-    df_validate = df[~ridx]
+for d in df["Name"]:
+    df_train = df[df["Name"] != d]
+    df_validate = df[df["Name"] == d]
 
     rbfi = gen_interpolator(df_train, ins, outs)
     er, correct = validate_step(rbfi, df_validate, ins, outs)
 
     er_all.extend(er)
     correct_all.extend(correct)
-
-    if k % (N / 10) == 0:
-        print('- ' + str(k / N * 100) + '% -')
 
 print()
 print('\n\nFraction of Races Predicted Correctly: ' + str(np.sum(correct_all) / len(correct_all)))

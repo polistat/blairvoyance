@@ -138,6 +138,15 @@ df.columns = ins
 df['Name'] = districts
 df['Tmp'] = pp.iloc[:, 1]
 
+# Normalize columns
+for cn in df.columns:
+    if np.issubdtype(df[cn].dtype, np.number) and cn != 'Tmp':
+        q1 = df[cn].quantile(0.25)
+        q3 = df[cn].quantile(0.75)
+        iqr = q3-q1
+        df[cn] /= iqr
+        df[cn] *= 1000
+
 # Make a copy of all the data before you drop the districts without polls
 raw = df.copy(deep=True)
 
@@ -146,15 +155,6 @@ raw = df.copy(deep=True)
 df['MRAM'] = (50 + df['Tmp']) / 100 - 0.5
 df = df[df['Tmp'] != 0]
 df = df[df['Name'].str.get(0) + df['Name'].str.get(1) != 'PA']
-
-# Normalize columns
-for cn in df.columns:
-    if np.issubdtype(df[cn].dtype, np.number) and cn != 'MRAM':
-        q1 = df[cn].quantile(0.25)
-        q3 = df[cn].quantile(0.75)
-        iqr = q3-q1
-        df[cn] /= iqr
-        df[cn] *= 1000
 
 print('Data loaded')
 
@@ -211,7 +211,7 @@ print('Stdev Prediction Error: ' + str(np.std(er_all)))
 # res = stats.probplot(er_all, plot=plt)
 # plt.title('Prediction Error (Normal Probability Plot)')
 # plt.show()
-
+"""
 ers = []
 names = []
 for k in range(len(df)):
@@ -234,7 +234,7 @@ adjws = 1 / np.array(ers)
 
 aw = np.average(vws, weights=adjws[:, 0])
 print('Interpolator weight: ' + str(aw))
-
+"""
 rbfi = gen_interpolator(df, ins, outs)
 
 y_pred = []

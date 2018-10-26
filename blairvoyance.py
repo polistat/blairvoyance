@@ -163,7 +163,7 @@ def gen_interpolator(df_train, _ins, _outs):
     inrep = [np.array(df_train[rep]).astype(float) for rep in _ins]
     outrep = [np.array(df_train[rep]).astype(float) for rep in _outs]
     features = list(inrep) + list(outrep)
-    return scipy.interpolate.Rbf(*features)
+    return scipy.interpolate.Rbf(*features, function = lambda self, r: ((0.8*r/self.epsilon)**2 + 1)**-1.25)
 
 
 def validate_step(rbfi, df_validate, _ins, _outs):
